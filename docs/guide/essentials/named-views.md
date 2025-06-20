@@ -1,11 +1,11 @@
-# Named Views
+# 네임드 뷰 %{#named-views}%
 
 <VueSchoolLink
   href="https://vueschool.io/lessons/vue-router-4-named-views"
-  title="Learn how to use named views"
+  title="네임드 뷰 사용법 배우기"
 />
 
-Sometimes you need to display multiple views at the same time instead of nesting them, e.g. creating a layout with a `sidebar` view and a `main` view. This is where named views come in handy. Instead of having one single outlet in your view, you can have multiple and give each of them a name. A `router-view` without a name will be given `default` as its name.
+때때로 뷰를 중첩하는 대신 여러 뷰를 동시에 표시해야 할 때가 있습니다. 예를 들어, `sidebar` 뷰와 `main` 뷰가 있는 레이아웃을 만들 때 그렇습니다. 이럴 때 네임드 뷰가 유용합니다. 뷰에 하나의 아웃렛만 두는 대신 여러 개를 두고 각각에 이름을 지정할 수 있습니다. 이름이 없는 `router-view`는 `default`라는 이름이 자동으로 부여됩니다.
 
 ```vue-html
 <router-view class="view left-sidebar" name="LeftSidebar" />
@@ -13,9 +13,7 @@ Sometimes you need to display multiple views at the same time instead of nesting
 <router-view class="view right-sidebar" name="RightSidebar" />
 ```
 
-A view is rendered by using a component, therefore multiple views require
-multiple components for the same route. Make sure to use the `components` (with
-an **s**) option:
+뷰는 컴포넌트를 사용하여 렌더링되므로, 여러 뷰에는 동일한 라우트에 대해 여러 컴포넌트가 필요합니다. 반드시 `components`(**s**가 붙음) 옵션을 사용해야 합니다:
 
 ```js
 const router = createRouter({
@@ -25,9 +23,9 @@ const router = createRouter({
       path: '/',
       components: {
         default: Home,
-        // short for LeftSidebar: LeftSidebar
+        // LeftSidebar: LeftSidebar의 축약형
         LeftSidebar,
-        // they match the `name` attribute on `<router-view>`
+        // 이들은 `<router-view>`의 `name` 속성과 매칭됩니다
         RightSidebar,
       },
     },
@@ -35,11 +33,11 @@ const router = createRouter({
 })
 ```
 
-A working demo of this example can be found [here](https://codesandbox.io/s/named-views-vue-router-4-examples-rd20l).
+이 예제의 동작하는 데모는 [여기](https://codesandbox.io/s/named-views-vue-router-4-examples-rd20l)에서 확인할 수 있습니다.
 
-## Nested Named Views
+## 중첩 네임드 뷰 %{#nested-named-views}%
 
-It is possible to create complex layouts using named views with nested views. When doing so, you will also need to give nested `router-view` a name. Let's take a Settings panel example:
+네임드 뷰와 중첩 뷰를 사용하여 복잡한 레이아웃을 만들 수 있습니다. 이때, 중첩된 `router-view`에도 이름을 지정해야 합니다. 설정 패널 예시를 살펴보겠습니다:
 
 ```
 /settings/emails                                       /settings/profile
@@ -53,30 +51,30 @@ It is possible to create complex layouts using named views with nested views. Wh
 +-----------------------------------+                  +------------------------------+
 ```
 
-- `Nav` is just a regular component
-- `UserSettings` is the parent view component
-- `UserEmailsSubscriptions`, `UserProfile`, `UserProfilePreview` are nested view components
+- `Nav`는 일반 컴포넌트입니다
+- `UserSettings`는 부모 뷰 컴포넌트입니다
+- `UserEmailsSubscriptions`, `UserProfile`, `UserProfilePreview`는 중첩 뷰 컴포넌트입니다
 
-**Note**: _Let's forget about how the HTML/CSS should look like to represent such layout and focus on the components used._
+**참고**: _이러한 레이아웃을 표현하기 위한 HTML/CSS가 어떻게 생겼는지는 잠시 잊고, 사용된 컴포넌트에 집중합시다._
 
-The `<template>` section for `UserSettings` component in the above layout would look something like this:
+위 레이아웃에서 `UserSettings` 컴포넌트의 `<template>` 섹션은 다음과 비슷할 것입니다:
 
 ```vue-html
 <!-- UserSettings.vue -->
 <div>
-  <h1>User Settings</h1>
+  <h1>사용자 설정</h1>
   <NavBar />
   <router-view />
   <router-view name="helper" />
 </div>
 ```
 
-Then you can achieve the layout above with this route configuration:
+그런 다음 아래와 같은 라우트 설정으로 위 레이아웃을 구현할 수 있습니다:
 
 ```js
 {
   path: '/settings',
-  // You could also have named views at the top
+  // 상위에서도 네임드 뷰를 사용할 수 있습니다
   component: UserSettings,
   children: [
     {
@@ -94,4 +92,4 @@ Then you can achieve the layout above with this route configuration:
 }
 ```
 
-A working demo of this example can be found [here](https://codesandbox.io/s/nested-named-views-vue-router-4-examples-re9yl?&initialpath=%2Fsettings%2Femails).
+이 예제의 동작하는 데모는 [여기](https://codesandbox.io/s/nested-named-views-vue-router-4-examples-re9yl?&initialpath=%2Fsettings%2Femails)에서 확인할 수 있습니다.

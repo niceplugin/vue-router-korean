@@ -1,148 +1,148 @@
-# Routes' Matching Syntax
+# 경로 매칭 문법 %{#routes-matching-syntax}%
 
 <VueSchoolLink
   href="https://vueschool.io/lessons/vue-router-4-advanced-routes-matching-syntax"
-  title="Learn how to use advanced route routes' matching syntax"
+  title="고급 라우트 매칭 문법 사용법 배우기"
 />
 
-Most applications will use static routes like `/about` and dynamic routes like `/users/:userId` like we just saw in [Dynamic Route Matching](./dynamic-matching.md), but Vue Router has much more to offer!
+대부분의 애플리케이션은 `/about`과 같은 정적 경로나, [동적 경로 매칭](./dynamic-matching.md)에서 본 것처럼 `/users/:userId`와 같은 동적 경로를 사용합니다. 하지만 Vue Router는 이보다 훨씬 더 많은 기능을 제공합니다!
 
 :::tip
-For the sake of simplicity, all route records **are omitting the `component` property** to focus on the `path` value.
+간단함을 위해, 모든 라우트 레코드는 **`component` 속성을 생략**하고 `path` 값에만 집중합니다.
 :::
 
-## Custom regex in params
+## 파라미터에 커스텀 정규식 사용 %{#custom-regex-in-params}%
 
-When defining a param like `:userId`, we internally use the following regex `([^/]+)` (at least one character that isn't a slash `/`) to extract params from URLs. This works well unless you need to differentiate two routes based on the param content. Imagine two routes `/:orderId` and `/:productName`, both would match the exact same URLs, so we need a way to differentiate them. The easiest way would be to add a static section to the path that differentiates them:
+`:userId`와 같은 파라미터를 정의할 때, 내부적으로는 다음과 같은 정규식 `([^/]+)`(슬래시 `/`가 아닌 문자가 하나 이상)으로 URL에서 파라미터를 추출합니다. 이 방식은 대부분 잘 동작하지만, 파라미터의 내용에 따라 두 경로를 구분해야 할 때 문제가 됩니다. 예를 들어 `/:orderId`와 `/:productName` 두 경로가 있다면, 두 경로 모두 동일한 URL과 매칭됩니다. 따라서 이를 구분할 방법이 필요합니다. 가장 쉬운 방법은 경로에 구분되는 정적 섹션을 추가하는 것입니다:
 
 ```js
 const routes = [
-  // matches /o/3549
+  // /o/3549와 매칭
   { path: '/o/:orderId' },
-  // matches /p/books
+  // /p/books와 매칭
   { path: '/p/:productName' },
 ]
 ```
 
-But in some scenarios, we don't want to add that static section `/o` or `/p`. However, `orderId` is always a number while `productName` can be anything so we can specify a custom regex for a param in parentheses:
+하지만 어떤 상황에서는 `/o`나 `/p`와 같은 정적 섹션을 추가하고 싶지 않을 수 있습니다. 그러나 `orderId`는 항상 숫자이고, `productName`은 무엇이든 될 수 있으므로, 괄호 안에 파라미터에 대한 커스텀 정규식을 지정할 수 있습니다:
 
 ```js
 const routes = [
-  // /:orderId -> matches only numbers
+  // /:orderId -> 숫자만 매칭
   { path: '/:orderId(\\d+)' },
-  // /:productName -> matches anything else
+  // /:productName -> 그 외 모든 것과 매칭
   { path: '/:productName' },
 ]
 ```
 
-Now, going to `/25` will match `/:orderId` while going to anything else will match `/:productName`. The order of the `routes` array doesn't even matter!
+이제 `/25`로 이동하면 `/:orderId`와 매칭되고, 그 외의 경로는 `/:productName`과 매칭됩니다. `routes` 배열의 순서는 중요하지 않습니다!
 
 :::tip
-Make sure to **escape backslashes (`\`)** like we did with `\d` (becomes `\\d`) to actually pass the backslash character in a string in JavaScript.
+자바스크립트 문자열에서 실제로 역슬래시 문자를 전달하려면, `\d`와 같이 **역슬래시(`\`)를 이스케이프**해야 합니다(즉, `\\d`로 작성).
 :::
 
-## Repeatable params
+## 반복 가능한 파라미터 %{#repeatable-params}%
 
-If you need to match routes with multiple sections like `/first/second/third`, you should mark a param as repeatable with `*` (0 or more) and `+` (1 or more):
+`/first/second/third`와 같이 여러 섹션이 있는 경로를 매칭해야 한다면, 파라미터에 `*`(0개 이상) 또는 `+`(1개 이상)를 사용하여 반복 가능하도록 표시할 수 있습니다:
 
 ```js
 const routes = [
-  // /:chapters -> matches /one, /one/two, /one/two/three, etc
+  // /:chapters -> /one, /one/two, /one/two/three 등과 매칭
   { path: '/:chapters+' },
-  // /:chapters -> matches /, /one, /one/two, /one/two/three, etc
+  // /:chapters -> /, /one, /one/two, /one/two/three 등과 매칭
   { path: '/:chapters*' },
 ]
 ```
 
-This will give you an array of params instead of a string and will also require you to pass an array when using named routes:
+이렇게 하면 파라미터가 문자열이 아닌 배열로 제공되며, 네임드 라우트를 사용할 때도 배열을 전달해야 합니다:
 
 ```js
-// given { path: '/:chapters*', name: 'chapters' },
+// { path: '/:chapters*', name: 'chapters' }가 주어졌을 때,
 router.resolve({ name: 'chapters', params: { chapters: [] } }).href
-// produces /
+// 결과: /
 router.resolve({ name: 'chapters', params: { chapters: ['a', 'b'] } }).href
-// produces /a/b
+// 결과: /a/b
 
-// given { path: '/:chapters+', name: 'chapters' },
+// { path: '/:chapters+', name: 'chapters' }가 주어졌을 때,
 router.resolve({ name: 'chapters', params: { chapters: [] } }).href
-// throws an Error because `chapters` is empty
+// `chapters`가 비어 있으므로 에러 발생
 ```
 
-These can also be combined with a custom regex by adding them **after the closing parentheses**:
+이 기능은 커스텀 정규식과도 결합할 수 있으며, **닫는 괄호 뒤에** 반복 기호를 추가하면 됩니다:
 
 ```js
 const routes = [
-  // only match numbers
-  // matches /1, /1/2, etc
+  // 숫자만 매칭
+  // /1, /1/2 등과 매칭
   { path: '/:chapters(\\d+)+' },
-  // matches /, /1, /1/2, etc
+  // /, /1, /1/2 등과 매칭
   { path: '/:chapters(\\d+)*' },
 ]
 ```
 
-## Sensitive and strict route options
+## 대소문자 구분 및 엄격한 경로 옵션 %{#sensitive-and-strict-route-options}%
 
-By default, all routes are case-insensitive and match routes with or without a trailing slash. e.g. a route `/users` matches `/users`, `/users/`, and even `/Users/`. This behavior can be configured with the `strict` and `sensitive` options, they can be set both at a router and route level:
+기본적으로 모든 경로는 대소문자를 구분하지 않으며, 마지막에 슬래시가 있든 없든 매칭됩니다. 예를 들어, `/users` 경로는 `/users`, `/users/`, 심지어 `/Users/`와도 매칭됩니다. 이러한 동작은 `strict`와 `sensitive` 옵션으로 설정할 수 있으며, 라우터와 라우트 레벨 모두에서 지정할 수 있습니다:
 
 ```js
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    // will match /users/posva but not:
-    // - /users/posva/ because of strict: true
-    // - /Users/posva because of sensitive: true
+    // /users/posva와는 매칭되지만, 다음과는 매칭되지 않음:
+    // - /users/posva/ (strict: true 때문)
+    // - /Users/posva (sensitive: true 때문)
     { path: '/users/:id', sensitive: true },
-    // will match /users, /Users, and /users/42 but not /users/ or /users/42/
+    // /users, /Users, /users/42와는 매칭되지만 /users/ 또는 /users/42/와는 매칭되지 않음
     { path: '/users/:id?' },
   ],
-  strict: true, // applies to all routes
+  strict: true, // 모든 라우트에 적용
 })
 ```
 
-## Optional parameters
+## 선택적 파라미터 %{#optional-parameters}%
 
-You can also mark a parameter as optional by using the `?` modifier (0 or 1):
+파라미터에 `?`(0개 또는 1개) 수식어를 사용하여 선택적으로 표시할 수도 있습니다:
 
 ```js
 const routes = [
-  // will match /users and /users/posva
+  // /users와 /users/posva 모두 매칭
   { path: '/users/:userId?' },
-  // will match /users and /users/42
+  // /users와 /users/42 모두 매칭
   { path: '/users/:userId(\\d+)?' },
 ]
 ```
 
-Note that `*` technically also marks a parameter as optional but `?` parameters cannot be repeated.
+참고로 `*`도 기술적으로는 파라미터를 선택적으로 표시하지만, `?` 파라미터는 반복될 수 없습니다.
 
-If the route segment contains more than **just an optional parameter**, it won't match a path **without the trailing slash**. For example:
+경로 세그먼트에 **선택적 파라미터 외에 다른 내용이 포함**되어 있다면, **마지막 슬래시가 없는 경로와는 매칭되지 않습니다**. 예를 들어:
 
-- `/users/:uid?-:name?` won't match `/users`, only `/users/-` or even `/users/-/`
-- `/users/:uid(\\d+)?:name?` won't match `/users`, only `/users/`, `/users/2`, `/users/2/`, etc
+- `/users/:uid?-:name?`는 `/users`와 매칭되지 않고, `/users/-` 또는 `/users/-/`와만 매칭됩니다
+- `/users/:uid(\\d+)?:name?`는 `/users`와 매칭되지 않고, `/users/`, `/users/2`, `/users/2/` 등과만 매칭됩니다
 
-You can play around with the matching syntax [in the playground](https://paths.esm.dev/?p=AAMsIPQg4AoKzidgQFoEXAmw-IEBBRYYOE0SkABTASiz1qgBpgQA1QTsFjAb3h2onsmlAmGIFsCXjXh4AIA.&t=/users/2/#)
+매칭 문법을 [플레이그라운드](https://paths.esm.dev/?p=AAMsIPQg4AoKzidgQFoEXAmw-IEBBRYYOE0SkABTASiz1qgBpgQA1QTsFjAb3h2onsmlAmGIFsCXjXh4AIA.&t=/users/2/#)에서 직접 실험해볼 수 있습니다.
 
-## Debugging
+## 디버깅 %{#debugging}%
 
-If you need to dig how your routes are transformed into a regex to understand why a route isn't being matched or, to report a bug, you can use the [path ranker tool](https://paths.esm.dev/?p=AAMeJSyAwR4UbFDAFxAcAGAIJXMAAA..#). It supports sharing your routes through the URL.
+경로가 정규식으로 어떻게 변환되는지 파악하여 왜 특정 경로가 매칭되지 않는지 이해하거나, 버그를 보고하려면 [path ranker tool](https://paths.esm.dev/?p=AAMeJSyAwR4UbFDAFxAcAGAIJXMAAA..#)을 사용할 수 있습니다. 이 도구는 URL을 통해 경로를 공유하는 것도 지원합니다.
 
-## Avoiding slow regex
+## 느린 정규식 피하기 %{#avoiding-slow-regex}%
 
-When using custom regex, make sure to avoid using slow regex patterns. For example, using `.*` will match any character and can lead to **serious performance issues** if it's combined with a repeatable modifier `*` or `+` and anything after it:
+커스텀 정규식을 사용할 때는 느린 정규식 패턴 사용을 피해야 합니다. 예를 들어, `.*`는 모든 문자를 매칭하며, 반복 수식어 `*` 또는 `+`와 결합되고 그 뒤에 다른 내용이 오면 **심각한 성능 문제**를 일으킬 수 있습니다:
 
 ```ts
 const routes = [
-  // This creates a very slow regex because of the greedy `.*` followed by `*` and a static string
+  // 탐욕적인 `.*` 뒤에 `*`와 정적 문자열이 와서 매우 느린 정규식이 생성됨
   { path: '/:pathMatch(.*)*/something-at-the-end' },
 ]
 ```
 
-In practice, use these _match everything_ params only **in the very end of the URL**. If you need them in the middle of the path, **do not make them repeatable**:
+실제로는 이러한 _모든 것 매칭_ 파라미터는 **URL의 맨 끝에서만** 사용하세요. 경로 중간에 필요하다면, **반복 가능하게 만들지 마세요**:
 
 ```ts
 const routes = [
-  // This is fine because the `.*` is at the end
+  // `.*`가 끝에 있으므로 괜찮음
   { path: '/:pathMatch(.*)/something-at-the-end' },
 ]
 ```
 
-This matches the same routes but without an array of params and it's much faster.
+이렇게 하면 동일한 경로를 매칭하지만 파라미터 배열 없이 훨씬 빠르게 동작합니다.

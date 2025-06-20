@@ -1,15 +1,15 @@
-# Vue Router and the Composition API
+# Vue Router와 Composition API %{#vue-router-and-the-composition-api}%
 
 <VueSchoolLink
   href="https://vueschool.io/lessons/router-and-the-composition-api"
-  title="Learn how to use Vue Router with the Composition API"
+  title="Composition API와 함께 Vue Router를 사용하는 방법 배우기"
 />
 
-The introduction of Vue's [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) opened up new possibilities, but to be able to get the full potential out of Vue Router, we will need to use a few new functions to replace access to `this` and in-component navigation guards.
+Vue의 [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html)의 도입으로 새로운 가능성이 열렸지만, Vue Router의 모든 잠재력을 활용하려면 `this`에 대한 접근과 컴포넌트 내 네비게이션 가드를 대체할 몇 가지 새로운 함수를 사용해야 합니다.
 
-## Accessing the Router and current Route inside `setup`
+## `setup` 내부에서 Router와 현재 Route에 접근하기 %{#accessing-the-router-and-current-route-inside-setup}%
 
-Because we don't have access to `this` inside of `setup`, we cannot directly access `this.$router` or `this.$route`. Instead, we use the `useRouter` and `useRoute` composables:
+`setup` 내부에서는 `this`에 접근할 수 없기 때문에, `this.$router`나 `this.$route`에 직접 접근할 수 없습니다. 대신, `useRouter`와 `useRoute` 컴포저블을 사용합니다:
 
 ```vue
 <script setup>
@@ -30,7 +30,7 @@ function pushWithQuery(query) {
 </script>
 ```
 
-The `route` object is a reactive object. In most scenarios, you should **avoid watching the whole `route`** object. Instead, you can directly watch the properties you are expecting to change:
+`route` 객체는 반응형 객체입니다. 대부분의 경우, **전체 `route` 객체를 감시하는 것은 피해야 합니다.** 대신, 변경될 것으로 예상되는 속성만 직접 감시할 수 있습니다:
 
 ```vue
 <script setup>
@@ -40,7 +40,7 @@ import { ref, watch } from 'vue'
 const route = useRoute()
 const userData = ref()
 
-// fetch the user information when params change
+// params가 변경될 때 사용자 정보를 가져옵니다
 watch(
   () => route.params.id,
   async newId => {
@@ -50,31 +50,31 @@ watch(
 </script>
 ```
 
-Note we still have access to `$router` and `$route` in templates, so there's no need to use `useRouter` or `useRoute` if we only need those objects in the template.
+템플릿에서는 여전히 `$router`와 `$route`에 접근할 수 있으므로, 해당 객체들이 템플릿에서만 필요하다면 `useRouter`나 `useRoute`를 사용할 필요가 없습니다.
 
-## Navigation Guards
+## 네비게이션 가드 %{#navigation-guards}%
 
-Vue Router exposes update and leave guards as Composition API functions:
+Vue Router는 Composition API 함수로 업데이트 및 이탈 가드를 제공합니다:
 
 ```vue
 <script setup>
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 import { ref } from 'vue'
 
-// same as beforeRouteLeave option but with no access to `this`
+// beforeRouteLeave 옵션과 동일하지만 `this`에 접근할 수 없습니다
 onBeforeRouteLeave((to, from) => {
   const answer = window.confirm(
-    'Do you really want to leave? you have unsaved changes!'
+    '정말로 이 페이지를 떠나시겠습니까? 저장되지 않은 변경사항이 있습니다!'
   )
-  // cancel the navigation and stay on the same page
+  // 네비게이션을 취소하고 같은 페이지에 머무릅니다
   if (!answer) return false
 })
 
 const userData = ref()
 
-// same as beforeRouteUpdate option but with no access to `this`
+// beforeRouteUpdate 옵션과 동일하지만 `this`에 접근할 수 없습니다
 onBeforeRouteUpdate(async (to, from) => {
-  // only fetch the user if the id changed as maybe only the query or the hash changed
+  // id가 변경된 경우에만 사용자를 가져옵니다. 쿼리나 해시만 변경되었을 수도 있기 때문입니다
   if (to.params.id !== from.params.id) {
     userData.value = await fetchUser(to.params.id)
   }
@@ -82,11 +82,11 @@ onBeforeRouteUpdate(async (to, from) => {
 </script>
 ```
 
-Composition API guards can also be used in any component rendered by `<router-view>`, they don't have to be used directly on the route component like in-component guards.
+Composition API 가드는 `<router-view>`에 의해 렌더링되는 모든 컴포넌트에서 사용할 수 있으며, 컴포넌트 내 가드처럼 반드시 라우트 컴포넌트에서 직접 사용할 필요는 없습니다.
 
-## `useLink`
+## `useLink` %{#uselink}%
 
-Vue Router exposes the internal behavior of RouterLink as a composable. It accepts a reactive object like the props of `RouterLink` and exposes low-level properties to build your own `RouterLink` component or generate custom links:
+Vue Router는 RouterLink의 내부 동작을 컴포저블로 제공합니다. 이는 `RouterLink`의 props와 같은 반응형 객체를 받아, 나만의 `RouterLink` 컴포넌트를 만들거나 커스텀 링크를 생성할 수 있는 저수준 속성들을 노출합니다:
 
 ```vue
 <script setup>
@@ -94,21 +94,21 @@ import { RouterLink, useLink } from 'vue-router'
 import { computed } from 'vue'
 
 const props = defineProps({
-  // add @ts-ignore if using TypeScript
+  // TypeScript를 사용할 경우 @ts-ignore를 추가하세요
   ...RouterLink.props,
   inactiveClass: String,
 })
 
 const {
-  // the resolved route object
+  // 해석된 라우트 객체
   route,
-  // the href to use in a link
+  // 링크에서 사용할 href
   href,
-  // boolean ref indicating if the link is active
+  // 링크가 활성 상태인지 나타내는 boolean ref
   isActive,
-  // boolean ref indicating if the link is exactly active
+  // 링크가 정확히 활성 상태인지 나타내는 boolean ref
   isExactActive,
-  // function to navigate to the link
+  // 링크로 네비게이션하는 함수
   navigate
 } = useLink(props)
 
@@ -118,4 +118,4 @@ const isExternalLink = computed(
 </script>
 ```
 
-Note that the RouterLink's `v-slot` gives access to the same properties as the `useLink` composable.
+RouterLink의 `v-slot`은 `useLink` 컴포저블과 동일한 속성에 접근할 수 있다는 점에 유의하세요.
