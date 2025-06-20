@@ -1,0 +1,13 @@
+{
+  "name": "@vue/router-docs",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "dependencies": {
+    "vitepress": "1.5.0",
+    "vitepress-translation-helper": "^0.2.1"
+  }
+}
